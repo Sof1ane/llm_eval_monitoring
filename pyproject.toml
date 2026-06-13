@@ -7,6 +7,7 @@ name = "llm-eval-monitoring"
 version = "0.1.0"
 description = "LLM evaluation and monitoring framework for sovereign RAG systems"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 dependencies = [
     "ragas>=0.1.14",
     "anthropic>=0.28.0",

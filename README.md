@@ -1,10 +1,57 @@
+<div align="center">
+
 # LLM Eval Monitoring
 
-Evaluation and monitoring stack for RAG systems. Tracks Ragas metrics over time, blocks deployment on quality regression, and exports AI Act compliance reports.
+**Continuous evaluation, regression gating, and AI Act audit trails for RAG systems.**
 
-Works standalone or wired into any RAG API (including [rag_souverain](https://github.com/Sof1ane/rag_souverain)) via `workflow_call`.
+Score your RAG with Ragas on every change, block deployments when quality drops, and keep a compliance-grade record of every run — with a judge LLM that can run fully on-premise.
+
+[![CI](https://github.com/Sof1ane/llm_eval_monitoring/actions/workflows/eval_ci.yml/badge.svg)](https://github.com/Sof1ane/llm_eval_monitoring/actions/workflows/eval_ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Ragas](https://img.shields.io/badge/eval-Ragas-orange.svg)](https://github.com/explodinggradients/ragas)
+[![EU AI Act](https://img.shields.io/badge/compliance-EU%20AI%20Act-0b5394.svg)](#ai-act-compliance)
+
+</div>
 
 ---
+
+A RAG system that scored well last month can silently degrade — a new embedding model, a prompt tweak, a re-chunked corpus, and faithfulness quietly drops. This stack turns RAG quality into a measured, versioned, gated number: every change is scored against a pinned baseline, regressions block the pipeline, and every run is logged in a form you can hand to an auditor.
+
+Works standalone or wired into any RAG API (including [rag_souverain](https://github.com/Sof1ane/rag_souverain)) via a reusable `workflow_call`.
+
+## Contents
+
+- [Why](#why)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Sovereign / air-gapped deployment](#sovereign--air-gapped-deployment)
+- [AI Act compliance](#ai-act-compliance)
+- [CI integration](#ci-integration-with-rag_souverain)
+- [Project structure](#project-structure)
+- [License](#license)
+
+## Why
+
+| Problem | This stack |
+|---|---|
+| "Did my last change make the RAG worse?" | Scores every run on 4 Ragas metrics and diffs against a pinned baseline |
+| Quality regressions reach production unnoticed | CI gate exits non-zero on any metric drop > 5% — the deploy is blocked |
+| No record of what was evaluated, when, with which model | Every run persisted in Postgres with full config snapshot and per-question detail |
+| Auditors ask for evidence of risk management | One command exports an AI Act Art. 9/12/13 report (JSON + Markdown) |
+| Can't send contract data to an external API | Judge LLM runs locally via Ollama or any OpenAI-compatible endpoint |
+
+## Features
+
+- **Four Ragas metrics** — faithfulness, answer relevancy, context precision, context recall, per-run and per-question.
+- **Baseline regression gating** — pin a known-good run; CI fails when any metric regresses beyond a configurable threshold.
+- **Swappable judge** — Claude Haiku by default, or a fully local judge (`ollama` / `openai_compat`) so no data leaves the perimeter.
+- **Grafana dashboard** — live quality trends, per-question table, judge-cost panels, auto-provisioned from Docker Compose.
+- **AI Act record-keeping** — model registry, full audit log, and an exportable compliance report.
+- **Cost tracking** — judge token usage and USD cost estimated per run and surfaced on the dashboard.
+- **Drop-in CI** — reusable `workflow_call` that any RAG repo can call as a deployment gate.
 
 ## Architecture
 
@@ -52,16 +99,14 @@ CI pipeline:
 
 **Stack:** Python 3.11 · Ragas · SQLAlchemy + Alembic · PostgreSQL 16 · Grafana 10 · Docker Compose · GitHub Actions
 
-**Judge LLM:** Claude Haiku by default. Swap to any local OpenAI-compatible endpoint with `JUDGE_BACKEND=openai_compat` — no data leaves the perimeter.
-
----
+**Judge LLM:** Claude Haiku by default. Swap to a local Ollama model or any OpenAI-compatible endpoint — no data leaves the perimeter.
 
 ## Quick Start
 
 ### 1. Install
 
 ```bash
-git clone <this-repo> llm_eval_monitoring
+git clone https://github.com/Sof1ane/llm_eval_monitoring.git
 cd llm_eval_monitoring
 
 python -m venv .venv
@@ -115,8 +160,6 @@ Grafana: http://localhost:3000 (admin / admin) → folder **RAG Monitoring**
 python scripts/export_audit_report.py --output data/audit_report.json
 ```
 
----
-
 ## Configuration
 
 See `.env.example` for the full list. Key variables:
@@ -131,8 +174,6 @@ See `.env.example` for the full list. Key variables:
 | `JUDGE_MODEL` | `claude-haiku-4-5-20251001` | Any model name recognized by the backend |
 | `EVAL_POSTGRES_PORT` | `5433` | Separate port to coexist with RAG Postgres on 5432 |
 | `GATE_MAX_REGRESSION_DELTA` | `0.05` | Relative regression threshold — fail CI if any metric drops more than 5% |
-
----
 
 ## Sovereign / air-gapped deployment
 
@@ -158,8 +199,6 @@ JUDGE_MODEL=qwen2.5
 
 Embeddings for testset generation use `BAAI/bge-m3` loaded locally (same model as rag_souverain).
 
----
-
 ## AI Act compliance
 
 Relevant for high-risk AI deployments in banking, insurance, and public sector.
@@ -169,8 +208,6 @@ Relevant for high-risk AI deployments in banking, insurance, and public sector.
 **Article 12 — Record-keeping:** Every run is persisted with full config snapshot (model version, judge model, RAG parameters), per-question scores and latency, judge cost, and CI trigger flag. Model versions are registered in `model_registry` at first evaluation. Migrations tracked with Alembic.
 
 **Article 13 — Transparency:** `scripts/export_audit_report.py` generates a structured JSON + Markdown report on demand, covering all registered models, baselines, and evaluation runs. The Grafana dashboard provides the same visibility in real time.
-
----
 
 ## CI integration with rag_souverain
 
@@ -188,8 +225,6 @@ jobs:
 ```
 
 The called workflow spins up its own Postgres, runs `alembic upgrade head`, and executes `quality_gate.py --ci`. Exit 1 blocks the calling repo's deployment.
-
----
 
 ## Project structure
 
@@ -228,3 +263,7 @@ llm_eval_monitoring/
 ├── pyproject.toml
 └── .env.example
 ```
+
+## License
+
+Released under the [MIT License](LICENSE).
