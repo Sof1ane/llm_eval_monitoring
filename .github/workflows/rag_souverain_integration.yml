@@ -1,0 +1,69 @@
+name: RAG Souverain — Eval Gate (call from rag_souverain CI)
+
+# This workflow is meant to be called from rag_souverain's ci.yml via:
+#   uses: <org>/llm_eval_monitoring/.github/workflows/rag_souverain_integration.yml@main
+# It runs the quality gate against the RAG API deployed in the calling repo's CI.
+
+on:
+  workflow_call:
+    inputs:
+      rag_base_url:
+        required: true
+        type: string
+        description: "Base URL of the RAG API to evaluate"
+      model_version:
+        required: false
+        type: string
+        default: "qwen2.5"
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+      EVAL_POSTGRES_DSN:
+        required: false
+
+jobs:
+  eval-gate:
+    name: LLM Quality Gate
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eval_user
+          POSTGRES_PASSWORD: eval_pass
+          POSTGRES_DB: eval_db
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      EVAL_POSTGRES_HOST: localhost
+      EVAL_POSTGRES_PORT: 5433
+      EVAL_POSTGRES_USER: eval_user
+      EVAL_POSTGRES_PASSWORD: eval_pass
+      EVAL_POSTGRES_DB: eval_db
+      JUDGE_BACKEND: anthropic
+      JUDGE_MODEL: claude-haiku-4-5-20251001
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      RAG_BASE_URL: ${{ inputs.rag_base_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -e .
+      - name: Migrate DB
+        run: alembic upgrade head
+      - name: Quality gate
+        run: |
+          python ci/quality_gate.py \
+            --model "${{ inputs.model_version }}" \
+            --threshold 0.05 \
+            --ci

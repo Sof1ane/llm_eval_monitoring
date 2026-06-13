@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  # ─── Eval Postgres (port 5433 — avoids collision with RAG Postgres on 5432) ───
+  eval_postgres:
+    image: postgres:16-alpine
+    container_name: eval_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: eval_user
+      POSTGRES_PASSWORD: eval_pass
+      POSTGRES_DB: eval_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - eval_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eval_user -d eval_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Grafana ──────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: eval_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./dashboard/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./dashboard/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      eval_postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  eval_postgres_data:
+  grafana_data:

@@ -1,0 +1,20 @@
+apiVersion: 1
+
+datasources:
+  - name: EvalPostgres
+    type: postgres
+    uid: eval_postgres_ds
+    url: eval_postgres:5432
+    user: eval_user
+    secureJsonData:
+      password: eval_pass
+    jsonData:
+      database: eval_db
+      sslmode: disable
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 1600
+      timescaledb: false
+    isDefault: true
+    editable: false

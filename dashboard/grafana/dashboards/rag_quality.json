@@ -1,0 +1,402 @@
+{
+  "__inputs": [],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "postgres", "name": "PostgreSQL", "version": "1.0.0" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "" },
+    { "type": "panel", "id": "gauge", "name": "Gauge", "version": "" },
+    { "type": "panel", "id": "table", "name": "Table", "version": "" },
+    { "type": "panel", "id": "stat", "name": "Stat", "version": "" }
+  ],
+  "annotations": { "list": [] },
+  "description": "RAG evaluation quality metrics over time — AI Act Article 13 transparency dashboard",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Current Quality",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "green", "value": 0.7 }
+            ]
+          },
+          "min": 0, "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "id": 2,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "title": "Faithfulness",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, faithfulness AS value FROM eval_runs WHERE faithfulness IS NOT NULL ORDER BY started_at DESC LIMIT 1",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "green", "value": 0.7 }
+            ]
+          },
+          "min": 0, "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "id": 3,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "title": "Answer Relevancy",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, answer_relevancy AS value FROM eval_runs WHERE answer_relevancy IS NOT NULL ORDER BY started_at DESC LIMIT 1",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "green", "value": 0.7 }
+            ]
+          },
+          "min": 0, "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "id": 4,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "title": "Context Precision",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, context_precision AS value FROM eval_runs WHERE context_precision IS NOT NULL ORDER BY started_at DESC LIMIT 1",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "green", "value": 0.7 }
+            ]
+          },
+          "min": 0, "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "id": 5,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "title": "Context Recall",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, context_recall AS value FROM eval_runs WHERE context_recall IS NOT NULL ORDER BY started_at DESC LIMIT 1",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 10,
+      "title": "Quality Trends",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "min": 0, "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 7 },
+      "id": 11,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Ragas Metrics over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT\n  started_at AS time,\n  faithfulness,\n  answer_relevancy,\n  context_precision,\n  context_recall\nFROM eval_runs\nWHERE $__timeFilter(started_at)\n  AND faithfulness IS NOT NULL\nORDER BY started_at",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 500 },
+              { "color": "red", "value": 2000 }
+            ]
+          },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 7 },
+      "id": 12,
+      "options": { "reduceOptions": { "calcs": ["mean"] }, "orientation": "auto", "graphMode": "area" },
+      "title": "Avg RAG Latency (last 30 runs)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, avg_latency_ms AS value FROM eval_runs WHERE avg_latency_ms IS NOT NULL ORDER BY started_at DESC LIMIT 30",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": { "unit": "runs" }
+      },
+      "gridPos": { "h": 3, "w": 8, "x": 16, "y": 11 },
+      "id": 13,
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "graphMode": "none" },
+      "title": "Total Eval Runs",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT NOW() AS time, COUNT(*) AS value FROM eval_runs",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1.0 },
+              { "color": "red", "value": 5.0 }
+            ]
+          },
+          "unit": "currencyUSD",
+          "decimals": 4
+        }
+      },
+      "gridPos": { "h": 3, "w": 8, "x": 16, "y": 14 },
+      "id": 14,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "orientation": "auto", "graphMode": "area" },
+      "title": "Cumulative Judge Cost (USD)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, judge_cost_usd AS value FROM eval_runs WHERE judge_cost_usd IS NOT NULL ORDER BY started_at",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 2, "w": 8, "x": 16, "y": 17 },
+      "id": 15,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "orientation": "auto", "graphMode": "none" },
+      "title": "Total Judge Tokens",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "time_series",
+          "rawSql": "SELECT started_at AS time, judge_tokens_used::float AS value FROM eval_runs WHERE judge_tokens_used IS NOT NULL ORDER BY started_at",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 19 },
+      "id": 20,
+      "title": "Per-Question Detail",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "left" } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "faithfulness" },
+            "properties": [
+              { "id": "custom.width", "value": 100 },
+              { "id": "unit", "value": "percentunit" },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "green", "value": 0.7 }] } },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "answer_relevancy" },
+            "properties": [
+              { "id": "custom.width", "value": 130 },
+              { "id": "unit", "value": "percentunit" },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "green", "value": 0.7 }] } },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 20 },
+      "id": 21,
+      "options": { "sortBy": [{ "displayName": "faithfulness", "desc": true }] },
+      "title": "Latest Run — Per Question Scores",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "table",
+          "rawSql": "SELECT\n  r.question,\n  r.faithfulness,\n  r.answer_relevancy,\n  r.context_precision,\n  r.context_recall,\n  r.latency_ms,\n  r.rag_confidence\nFROM eval_results r\nINNER JOIN (\n  SELECT run_id FROM eval_runs ORDER BY started_at DESC LIMIT 1\n) latest ON r.run_id = latest.run_id\nORDER BY r.faithfulness ASC\nLIMIT 50",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "id": 30,
+      "title": "AI Act Compliance",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+      "id": 31,
+      "title": "Model Registry — Article 12",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "table",
+          "rawSql": "SELECT\n  model_version,\n  served_model_name,\n  registered_at,\n  notes\nFROM model_registry\nORDER BY registered_at DESC",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+      "id": 32,
+      "title": "Quality Baselines — CI Gate History",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+          "format": "table",
+          "rawSql": "SELECT\n  captured_at,\n  model_version,\n  faithfulness,\n  answer_relevancy,\n  context_precision,\n  context_recall,\n  is_active,\n  notes\nFROM quality_baselines\nORDER BY captured_at DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "tags": ["rag", "llm", "ai-act", "quality"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": { "type": "postgres", "uid": "eval_postgres_ds" },
+        "definition": "SELECT DISTINCT model_version FROM eval_runs ORDER BY model_version",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Model Version",
+        "multi": false,
+        "name": "model_version",
+        "options": [],
+        "query": "SELECT DISTINCT model_version FROM eval_runs ORDER BY model_version",
+        "refresh": 2,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-30d", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "RAG Quality Monitoring",
+  "uid": "rag-quality-v1",
+  "version": 1
+}
