@@ -15,6 +15,12 @@ _PRICING: dict[str, tuple[float, float]] = {
     "claude-opus-4-8": (15.00, 75.00),
     "gpt-4o-mini": (0.15, 0.60),
     "mistral": (0.0, 0.0),
+    "llama3": (0.0, 0.0),
+    "llama3.1": (0.0, 0.0),
+    "llama3.2": (0.0, 0.0),
+    "qwen2.5": (0.0, 0.0),
+    "phi4": (0.0, 0.0),
+    "gemma3": (0.0, 0.0),
 }
 
 # Ragas scores ~4 metrics × N questions, each needing ~3 LLM calls.

@@ -124,8 +124,9 @@ See `.env.example` for the full list. Key variables:
 | Variable | Default | Notes |
 |---|---|---|
 | `RAG_BASE_URL` | `http://localhost:8080` | RAG API endpoint |
-| `JUDGE_BACKEND` | `anthropic` | `anthropic` or `openai_compat` |
+| `JUDGE_BACKEND` | `anthropic` | `anthropic`, `ollama`, or `openai_compat` |
 | `ANTHROPIC_API_KEY` | — | Required for `anthropic` backend |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL (`ollama` backend) |
 | `JUDGE_BASE_URL` | — | Required for `openai_compat` backend |
 | `JUDGE_MODEL` | `claude-haiku-4-5-20251001` | Any model name recognized by the backend |
 | `EVAL_POSTGRES_PORT` | `5433` | Separate port to coexist with RAG Postgres on 5432 |
@@ -135,12 +136,24 @@ See `.env.example` for the full list. Key variables:
 
 ## Sovereign / air-gapped deployment
 
-No external calls required. Set:
+No external calls required.
+
+**Ollama (simplest local setup):**
+
+```env
+JUDGE_BACKEND=ollama
+JUDGE_MODEL=llama3.2
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
+Pull the model once: `ollama pull llama3.2`
+
+**vLLM / LM Studio / any OpenAI-compat endpoint:**
 
 ```env
 JUDGE_BACKEND=openai_compat
-JUDGE_BASE_URL=http://localhost:11434/v1   # Ollama, vLLM, LM Studio, etc.
-JUDGE_MODEL=mistral
+JUDGE_BASE_URL=http://localhost:8000/v1
+JUDGE_MODEL=qwen2.5
 ```
 
 Embeddings for testset generation use `BAAI/bge-m3` loaded locally (same model as rag_souverain).

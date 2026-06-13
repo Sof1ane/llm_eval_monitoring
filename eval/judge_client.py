@@ -26,7 +26,18 @@ def get_judge_llm() -> BaseChatModel:
             max_tokens=1024,
         )
 
-    # openai_compat — fully sovereign, any vLLM/Ollama endpoint
+    if settings.judge_backend == "ollama":
+        from langchain_ollama import ChatOllama
+
+        logger.info("judge_init", backend="ollama", model=settings.judge_model, base_url=settings.ollama_base_url)
+        return ChatOllama(
+            model=settings.judge_model,
+            base_url=settings.ollama_base_url,
+            temperature=0,
+            num_predict=1024,
+        )
+
+    # openai_compat — vLLM, LM Studio, or any OpenAI-compatible endpoint
     from langchain_openai import ChatOpenAI
 
     logger.info("judge_init", backend="openai_compat", model=settings.judge_model)

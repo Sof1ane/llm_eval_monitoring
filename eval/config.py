@@ -16,10 +16,11 @@ class Settings(BaseSettings):
     rag_timeout_s: int = 30
 
     # Judge
-    judge_backend: Literal["anthropic", "openai_compat"] = "anthropic"
+    judge_backend: Literal["anthropic", "openai_compat", "ollama"] = "anthropic"
     anthropic_api_key: str = ""
     judge_model: str = "claude-haiku-4-5-20251001"
     judge_base_url: str = "http://localhost:8000/v1"
+    ollama_base_url: str = "http://localhost:11434"
 
     # Postgres
     eval_postgres_host: str = "localhost"
